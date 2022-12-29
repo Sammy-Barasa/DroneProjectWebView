@@ -6,20 +6,25 @@ import {  ref, onValue} from "firebase/database";
 import {db} from './firebase';
 
 function App() {
-const [DronesData, setDronesData] = useState([]);
+const [AllDronesData, setAllDronesData] = useState([]);
 // const [mapRef, setMapRef] = useRef(null);
-useEffect(()=>{
-    const userId = "ESapNXOsTpTWxmdQYUElOjW3IsD3";
-    const dataCaptured = ref(db, `DroneData/${userId}/readings`);
-    onValue(dataCaptured, (snapshot) => {
-    const data = snapshot.val();
-    if(data!== null){
-    console.log(data)
-    console.log(Object.values(data))
-    setDronesData(data);
-    }
+
+
+  useEffect(() => {
+    const userId = "ESapNXOsTpTWxmdQYUElOjW3IsD3"
+    const query = ref(db, `DroneData/${userId}/readings`);
+    return onValue(query, (snapshot) => {
+      const data = snapshot.val();
+      if (snapshot.exists()) {
+        Object.values(data).map((DronesData) => {
+          console.log(DronesData)
+          return setAllDronesData((DronesData) => [...AllDronesData, DronesData]);
+        });
+      }
     });
-},[DronesData])
+  }, [AllDronesData]);
+
+
   return (
     <div className="App">
       <header className="App-header">
@@ -30,10 +35,11 @@ useEffect(()=>{
             {/* {DronesData.map((DroneData, index)=>{
                 return <p>{DroneData}</p>
             })} */}
-            <p>Here</p>
+            <p>{AllDronesData}</p>
+            <p>Airbone Drones</p>
         </div>
         <div>
-          <MapMarkerView/>
+          <MapMarkerView dataState ={AllDronesData}/>
         </div>
       </section>
     </div>
